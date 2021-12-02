@@ -31,6 +31,35 @@ async function mongodbCURD() {
     ------------------------------------- */
     const database = client.db('logOutage');
     const logCollection = database.collection('logs');
+    /* ------------------------------------- 
+    GET ALL LOGS
+    ------------------------------------- */
+    app.get('/logs', async (req, res) => {
+      const cursor = logCollection.find({});
+      const logs = await cursor.toArray();
+      res.send(logs);
+    });
+    /* ------------------------------------- 
+    Insert Login Data
+    ------------------------------------- */
+    app.post('/login', async (req, res) => {
+      const login = req.body;
+      const result = await logCollection.insertOne(login);
+      res.json(result);
+    });
+    /* ------------------------------------- 
+    Update Logout Time
+    ------------------------------------- */
+    app.put('/logout/:id', async (req, res) => {
+      const id = req.params.id;
+      const logoutTime = req.body.logoutTime;
+      const filter = { _id: ObjectId(id) };
+
+      const result = await logCollection.updateOne(filter, {
+        $set: { logoutTime: logoutTime },
+      });
+      res.json(result);
+    });
   } finally {
     // await client.close();
   }
